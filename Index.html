@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub File Uploader (Netlify)</title>
+    <title>File Uploader</title>
     <style>
         :root {
             --primary-color: #0366d6;
@@ -12,8 +12,6 @@
             --text-color: #24292e;
             --success-color: #28a745;
             --error-color: #d73a49;
-            --netlify-green: #00ad9f;
-            --link-color: #0366d6;
         }
         
         * {
@@ -27,74 +25,28 @@
             background-color: #fafbfc;
             color: var(--text-color);
             line-height: 1.5;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .netlify-badge {
-            background-color: var(--netlify-green);
-            color: white;
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: normal;
+            padding: 10px;
+            margin: 0;
         }
         
         .container {
             background-color: white;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        
-        input[type="text"] {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        input[type="file"] {
-            display: none;
+            padding: 15px;
+            max-width: 500px;
+            margin: 0 auto;
         }
         
         .file-upload-area {
             border: 2px dashed var(--border-color);
             border-radius: 4px;
-            padding: 40px 20px;
+            padding: 30px 15px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
             background-color: var(--secondary-color);
+            margin-bottom: 15px;
         }
         
         .file-upload-area:hover {
@@ -107,17 +59,19 @@
         }
         
         .file-list {
-            margin-top: 15px;
-            max-height: 200px;
+            margin-top: 10px;
+            max-height: 150px;
             overflow-y: auto;
+            margin-bottom: 15px;
         }
         
         .file-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px;
+            padding: 6px;
             border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
         }
         
         .file-item:last-child {
@@ -134,7 +88,7 @@
         .file-size {
             color: #6a737d;
             font-size: 12px;
-            margin-left: 10px;
+            margin-left: 8px;
         }
         
         .remove-file {
@@ -143,17 +97,18 @@
             color: var(--error-color);
             cursor: pointer;
             font-size: 16px;
+            padding: 2px 6px;
         }
         
         .progress-container {
-            margin-top: 15px;
+            margin: 10px 0;
             display: none;
         }
         
         .progress-bar {
-            height: 8px;
+            height: 6px;
             background-color: var(--secondary-color);
-            border-radius: 4px;
+            border-radius: 3px;
             overflow: hidden;
             margin-bottom: 5px;
         }
@@ -166,7 +121,7 @@
         }
         
         .progress-text {
-            font-size: 12px;
+            font-size: 11px;
             color: #6a737d;
             text-align: center;
         }
@@ -176,11 +131,12 @@
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 10px 16px;
+            padding: 8px 16px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
+            width: 100%;
         }
         
         button:hover {
@@ -193,10 +149,11 @@
         }
         
         .status {
-            margin-top: 15px;
-            padding: 10px;
+            margin-top: 10px;
+            padding: 8px;
             border-radius: 4px;
             display: none;
+            font-size: 14px;
         }
         
         .status.success {
@@ -213,156 +170,20 @@
             display: block;
         }
         
-        .github-icon {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        
-        .instructions {
-            background-color: var(--secondary-color);
-            padding: 15px;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-top: 20px;
-        }
-        
-        .instructions h3 {
-            margin-bottom: 10px;
-        }
-        
-        .instructions ol {
-            margin-left: 20px;
-        }
-        
-        .instructions li {
-            margin-bottom: 8px;
-        }
-        
-        .instructions code {
-            background-color: rgba(27, 31, 35, 0.05);
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        
-        .token-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 5px;
-            font-size: 12px;
-            color: #6a737d;
-        }
-        
-        .secure-icon {
-            color: var(--success-color);
-        }
-        
-        .netlify-setup {
-            background-color: rgba(0, 173, 159, 0.1);
-            border: 1px solid var(--netlify-green);
-            border-radius: 4px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-        
-        .netlify-setup h3 {
-            color: var(--netlify-green);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .link-container {
-            margin-top: 15px;
-            display: none;
-        }
-        
-        .link-list {
-            margin-top: 10px;
-        }
-        
-        .link-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            padding: 8px;
-            background-color: var(--secondary-color);
-            border-radius: 4px;
-        }
-        
-        .link-text {
-            flex-grow: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-family: monospace;
-            font-size: 14px;
-        }
-        
-        .copy-link {
-            background: none;
-            border: 1px solid var(--primary-color);
-            color: var(--primary-color);
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        
-        .copy-link:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .base-url-display {
-            background-color: rgba(3, 102, 214, 0.1);
-            border: 1px solid var(--primary-color);
-            border-radius: 4px;
-            padding: 10px;
-            margin-top: 15px;
-            font-family: monospace;
-            font-size: 14px;
-            word-break: break-all;
-        }
-        
-        .env-config {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 5px;
-        }
-        
-        .env-status {
-            font-size: 12px;
-            padding: 2px 6px;
-            border-radius: 3px;
-        }
-        
-        .env-configured {
-            background-color: rgba(40, 167, 69, 0.1);
-            color: var(--success-color);
-        }
-        
-        .env-missing {
-            background-color: rgba(215, 58, 73, 0.1);
-            color: var(--error-color);
-        }
-        
         .auto-copy-notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 10px;
+            right: 10px;
             background-color: var(--success-color);
             color: white;
-            padding: 12px 20px;
+            padding: 8px 12px;
             border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             display: none;
             z-index: 1000;
             animation: slideIn 0.3s ease-out;
+            font-size: 12px;
+            max-width: 200px;
         }
         
         @keyframes slideIn {
@@ -375,104 +196,19 @@
                 opacity: 1;
             }
         }
-        
-        .auto-copy-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-        }
-        
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
-        }
-        
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px;
-            width: 16px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        
-        input:checked + .slider {
-            background-color: var(--primary-color);
-        }
-        
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
     </style>
 </head>
 <body>
-    <!-- Auto-copy notification -->
     <div class="auto-copy-notification" id="auto-copy-notification">
         Link copied to clipboard!
     </div>
     
-    <header>
-        <div class="github-icon">🐙</div>
-        <h1>GitHub File Uploader <span class="netlify-badge">Netlify</span></h1>
-        <p>Securely upload files to your GitHub repository using Netlify Functions</p>
-    </header>
-    
     <div class="container">
-        <div class="form-group">
-            <label for="repo-path">Path in Repository (optional)</label>
-            <input type="text" id="repo-path" placeholder="folder/subfolder">
-            <div class="env-config">
-                <span>Repository Configuration:</span>
-                <span id="repo-config-status" class="env-status env-configured">Using Environment Variables</span>
-            </div>
+        <div class="file-upload-area" id="file-upload-area">
+            <p>Drag & drop files here or click to select</p>
+            <p><small>Maximum file size: 25MB</small></p>
         </div>
-        
-        <div class="base-url-display">
-            <strong>Files will be accessible at:</strong><br>
-            https://alisfa.github.io/2276a2218i/<span id="dynamic-path">[filename]</span>
-        </div>
-        
-        <div class="form-group">
-            <label>Files to Upload</label>
-            <div class="file-upload-area" id="file-upload-area">
-                <p>Drag & drop files here or click to select</p>
-                <p><small>Maximum file size: 25MB (GitHub API limit)</small></p>
-            </div>
-            <div class="file-list" id="file-list"></div>
-        </div>
-        
-        <div class="auto-copy-option">
-            <label class="toggle-switch">
-                <input type="checkbox" id="auto-copy-toggle" checked>
-                <span class="slider"></span>
-            </label>
-            <span>Auto-copy first link to clipboard after upload</span>
-        </div>
+        <div class="file-list" id="file-list"></div>
         
         <div class="progress-container" id="progress-container">
             <div class="progress-bar">
@@ -484,40 +220,6 @@
         <button id="upload-button" disabled>Upload Files</button>
         
         <div class="status" id="status"></div>
-        
-        <div class="link-container" id="link-container">
-            <h3>Uploaded File Links:</h3>
-            <div class="link-list" id="link-list"></div>
-        </div>
-    </div>
-    
-    <div class="netlify-setup">
-        <h3>⚡ Netlify Setup Instructions</h3>
-        <ol>
-            <li>Deploy this site to Netlify (drag & drop the folder or connect your Git repository)</li>
-            <li>In Netlify dashboard, go to <strong>Site settings > Environment variables</strong></li>
-            <li>Add these variables:
-                <ul>
-                    <li><code>GITHUB_TOKEN</code> - Your GitHub Personal Access Token</li>
-                    <li><code>GITHUB_USERNAME</code> - Your GitHub username</li>
-                    <li><code>GITHUB_REPO</code> - Your repository name</li>
-                </ul>
-            </li>
-            <li>Your credentials will be securely accessed by the serverless function</li>
-        </ol>
-    </div>
-    
-    <div class="instructions">
-        <h3>How to use this uploader:</h3>
-        <ol>
-            <li>Configure the environment variables in Netlify (see above)</li>
-            <li>Optionally specify a subfolder path for your files</li>
-            <li>Select or drag and drop files to upload</li>
-            <li>Click "Upload Files" to send them to your repository</li>
-            <li>After upload, you'll get direct links to your files</li>
-            <li>Enable auto-copy to automatically copy the first link to your clipboard</li>
-        </ol>
-        <p><strong>Note:</strong> This tool uses Netlify Functions to securely handle your GitHub credentials. They are never exposed to the client-side JavaScript.</p>
     </div>
 
     <script>
@@ -533,11 +235,6 @@
             const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('progress-text');
             const status = document.getElementById('status');
-            const linkContainer = document.getElementById('link-container');
-            const linkList = document.getElementById('link-list');
-            const dynamicPath = document.getElementById('dynamic-path');
-            const repoPathInput = document.getElementById('repo-path');
-            const autoCopyToggle = document.getElementById('auto-copy-toggle');
             const autoCopyNotification = document.getElementById('auto-copy-notification');
             
             // File storage
@@ -546,18 +243,6 @@
             
             // Base URL for generated links
             const baseUrl = "https://alisfa.github.io/2276a2218i/";
-            
-            // Update dynamic path display when repo path changes
-            repoPathInput.addEventListener('input', updateDynamicPath);
-            
-            function updateDynamicPath() {
-                const path = repoPathInput.value.trim();
-                if (path) {
-                    dynamicPath.textContent = path + "/[filename]";
-                } else {
-                    dynamicPath.textContent = "[filename]";
-                }
-            }
             
             // Setup file input
             fileUploadArea.addEventListener('click', () => fileInput.click());
@@ -649,9 +334,6 @@
             
             // Upload files to GitHub via Netlify Function
             async function uploadFiles() {
-                const repoPath = repoPathInput.value.trim();
-                
-                // Validate inputs
                 if (filesToUpload.length === 0) {
                     showStatus('Please select at least one file to upload', 'error');
                     return;
@@ -661,7 +343,6 @@
                 uploadButton.disabled = true;
                 progressContainer.style.display = 'block';
                 status.className = 'status';
-                linkContainer.style.display = 'none';
                 uploadedFileLinks = [];
                 
                 let successCount = 0;
@@ -677,12 +358,11 @@
                     progressText.textContent = `Uploading ${i+1}/${filesToUpload.length}: ${file.name}`;
                     
                     try {
-                        const result = await uploadFileToGitHub(file, repoPath);
+                        const result = await uploadFileToGitHub(file);
                         if (result.success) {
                             successCount++;
                             // Generate and store the link
-                            const filePath = repoPath ? `${repoPath}/${file.name}` : file.name;
-                            const fileUrl = `${baseUrl}${filePath}`;
+                            const fileUrl = `${baseUrl}${file.name}`;
                             uploadedFileLinks.push({
                                 name: file.name,
                                 url: fileUrl
@@ -700,32 +380,48 @@
                 progressBar.style.width = '100%';
                 progressText.textContent = 'Upload complete';
                 
-                // Show result
+                // Show result and send message to parent
                 if (errorCount === 0) {
-                    showStatus(`Successfully uploaded ${successCount} file(s) to your repository!`, 'success');
-                    // Show download links
+                    showStatus(`Successfully uploaded ${successCount} file(s)!`, 'success');
+                    
+                    // Send message to parent window with all uploaded URLs
                     if (uploadedFileLinks.length > 0) {
-                        renderDownloadLinks();
-                        linkContainer.style.display = 'block';
+                        const urls = uploadedFileLinks.map(link => link.url);
+                        sendMessageToParent({
+                            type: 'uploadComplete',
+                            success: true,
+                            urls: urls,
+                            message: `Successfully uploaded ${successCount} file(s)`
+                        });
                         
-                        // Auto-copy first link if enabled
-                        if (autoCopyToggle.checked && uploadedFileLinks.length > 0) {
-                            autoCopyToClipboard(uploadedFileLinks[0].url);
-                        }
+                        // Auto-copy first link
+                        autoCopyToClipboard(uploadedFileLinks[0].url);
                     }
                 } else if (successCount === 0) {
-                    showStatus(`Failed to upload ${errorCount} file(s). Please check your configuration and try again.`, 'error');
+                    const errorMessage = `Failed to upload ${errorCount} file(s)`;
+                    showStatus(errorMessage, 'error');
+                    sendMessageToParent({
+                        type: 'uploadComplete',
+                        success: false,
+                        urls: [],
+                        message: errorMessage
+                    });
                 } else {
-                    showStatus(`Uploaded ${successCount} file(s) successfully. ${errorCount} file(s) failed.`, 'error');
-                    // Show download links for successful uploads
+                    const message = `Uploaded ${successCount} file(s) successfully. ${errorCount} file(s) failed.`;
+                    showStatus(message, 'error');
+                    
+                    // Send message with successful URLs only
+                    const successfulUrls = uploadedFileLinks.map(link => link.url);
+                    sendMessageToParent({
+                        type: 'uploadComplete',
+                        success: true,
+                        urls: successfulUrls,
+                        message: message
+                    });
+                    
+                    // Auto-copy first link if any were successful
                     if (uploadedFileLinks.length > 0) {
-                        renderDownloadLinks();
-                        linkContainer.style.display = 'block';
-                        
-                        // Auto-copy first link if enabled
-                        if (autoCopyToggle.checked && uploadedFileLinks.length > 0) {
-                            autoCopyToClipboard(uploadedFileLinks[0].url);
-                        }
+                        autoCopyToClipboard(uploadedFileLinks[0].url);
                     }
                 }
                 
@@ -734,25 +430,24 @@
                     progressContainer.style.display = 'none';
                     progressBar.style.width = '0%';
                     uploadButton.disabled = false;
+                    filesToUpload = [];
+                    renderFileList();
                 }, 3000);
             }
             
             // Upload a single file to GitHub via Netlify Function
-            async function uploadFileToGitHub(file, path) {
+            async function uploadFileToGitHub(file) {
                 // Read file as base64
                 const fileContent = await readFileAsBase64(file);
-                
-                // Determine file path in repository
-                const filePath = path ? `${path}/${file.name}` : file.name;
                 
                 // Netlify Function endpoint
                 const netlifyFunctionUrl = '/.netlify/functions/upload-to-github';
                 
                 // Request body
                 const body = {
-                    path: filePath,
+                    path: file.name,
                     content: fileContent.split(',')[1], // Remove data URL prefix
-                    message: `Upload ${file.name} via Netlify Uploader`
+                    message: `Upload ${file.name}`
                 };
                 
                 // Make API request to Netlify Function
@@ -773,29 +468,13 @@
                 return { success: true, data: responseData };
             }
             
-            // Render download links
-            function renderDownloadLinks() {
-                linkList.innerHTML = '';
-                
-                uploadedFileLinks.forEach(link => {
-                    const linkItem = document.createElement('div');
-                    linkItem.className = 'link-item';
-                    
-                    const linkText = document.createElement('span');
-                    linkText.className = 'link-text';
-                    linkText.textContent = link.url;
-                    
-                    const copyButton = document.createElement('button');
-                    copyButton.className = 'copy-link';
-                    copyButton.textContent = 'Copy';
-                    copyButton.addEventListener('click', () => {
-                        copyToClipboard(link.url, copyButton);
-                    });
-                    
-                    linkItem.appendChild(linkText);
-                    linkItem.appendChild(copyButton);
-                    linkList.appendChild(linkItem);
-                });
+            // Send message to parent window
+            function sendMessageToParent(message) {
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage(message, '*');
+                }
+                // Also log for debugging
+                console.log('Message sent to parent:', message);
             }
             
             // Auto-copy to clipboard function
@@ -811,22 +490,6 @@
                     }, 3000);
                 }).catch(err => {
                     console.error('Failed to copy automatically: ', err);
-                });
-            }
-            
-            // Manual copy to clipboard function
-            function copyToClipboard(text, button) {
-                navigator.clipboard.writeText(text).then(() => {
-                    button.textContent = 'Copied!';
-                    setTimeout(() => {
-                        button.textContent = 'Copy';
-                    }, 2000);
-                }).catch(err => {
-                    console.error('Failed to copy: ', err);
-                    button.textContent = 'Error';
-                    setTimeout(() => {
-                        button.textContent = 'Copy';
-                    }, 2000);
                 });
             }
             
@@ -846,8 +509,11 @@
                 status.className = `status ${type}`;
             }
             
-            // Initialize dynamic path display
-            updateDynamicPath();
+            // Listen for messages from parent (optional)
+            window.addEventListener('message', function(event) {
+                // You can handle incoming messages from parent here if needed
+                console.log('Message received from parent:', event.data);
+            });
         });
     </script>
 </body>
