@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub File Uploader</title>
+    <title>GitHub File Uploader (Netlify)</title>
     <style>
         :root {
             --primary-color: #0366d6;
@@ -12,6 +12,8 @@
             --text-color: #24292e;
             --success-color: #28a745;
             --error-color: #d73a49;
+            --netlify-green: #00ad9f;
+            --link-color: #0366d6;
         }
         
         * {
@@ -40,6 +42,19 @@
         h1 {
             font-size: 24px;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .netlify-badge {
+            background-color: var(--netlify-green);
+            color: white;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: normal;
         }
         
         .container {
@@ -60,7 +75,7 @@
             font-weight: 600;
         }
         
-        input[type="text"], input[type="password"] {
+        input[type="text"] {
             width: 100%;
             padding: 8px 12px;
             border: 1px solid var(--border-color);
@@ -229,34 +244,134 @@
             border-radius: 3px;
             font-family: monospace;
         }
+        
+        .token-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #6a737d;
+        }
+        
+        .secure-icon {
+            color: var(--success-color);
+        }
+        
+        .netlify-setup {
+            background-color: rgba(0, 173, 159, 0.1);
+            border: 1px solid var(--netlify-green);
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .netlify-setup h3 {
+            color: var(--netlify-green);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .link-container {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .link-list {
+            margin-top: 10px;
+        }
+        
+        .link-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 8px;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+        }
+        
+        .link-text {
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .copy-link {
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .copy-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .base-url-display {
+            background-color: rgba(3, 102, 214, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .env-config {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        
+        .env-status {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .env-configured {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+        
+        .env-missing {
+            background-color: rgba(215, 58, 73, 0.1);
+            color: var(--error-color);
+        }
     </style>
 </head>
 <body>
     <header>
         <div class="github-icon">🐙</div>
-        <h1>GitHub File Uploader</h1>
-        <p>Upload files directly to your GitHub repository</p>
+        <h1>GitHub File Uploader <span class="netlify-badge">Netlify</span></h1>
+        <p>Securely upload files to your GitHub repository using Netlify Functions</p>
     </header>
     
     <div class="container">
         <div class="form-group">
-            <label for="repo-owner">Repository Owner</label>
-            <input type="text" id="repo-owner" placeholder="your-github-username">
-        </div>
-        
-        <div class="form-group">
-            <label for="repo-name">Repository Name</label>
-            <input type="text" id="repo-name" placeholder="your-repository-name">
-        </div>
-        
-        <div class="form-group">
             <label for="repo-path">Path in Repository (optional)</label>
             <input type="text" id="repo-path" placeholder="folder/subfolder">
+            <div class="env-config">
+                <span>Repository Configuration:</span>
+                <span id="repo-config-status" class="env-status env-configured">Using Environment Variables</span>
+            </div>
         </div>
         
-        <div class="form-group">
-            <label for="github-token">GitHub Personal Access Token</label>
-            <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        <div class="base-url-display">
+            <strong>Files will be accessible at:</strong><br>
+            https://alisfa.github.io/2276a2218i/<span id="dynamic-path">[filename]</span>
         </div>
         
         <div class="form-group">
@@ -278,17 +393,39 @@
         <button id="upload-button" disabled>Upload Files</button>
         
         <div class="status" id="status"></div>
+        
+        <div class="link-container" id="link-container">
+            <h3>Uploaded File Links:</h3>
+            <div class="link-list" id="link-list"></div>
+        </div>
+    </div>
+    
+    <div class="netlify-setup">
+        <h3>⚡ Netlify Setup Instructions</h3>
+        <ol>
+            <li>Deploy this site to Netlify (drag & drop the folder or connect your Git repository)</li>
+            <li>In Netlify dashboard, go to <strong>Site settings > Environment variables</strong></li>
+            <li>Add these variables:
+                <ul>
+                    <li><code>GITHUB_TOKEN</code> - Your GitHub Personal Access Token</li>
+                    <li><code>GITHUB_USERNAME</code> - Your GitHub username</li>
+                    <li><code>GITHUB_REPO</code> - Your repository name</li>
+                </ul>
+            </li>
+            <li>Your credentials will be securely accessed by the serverless function</li>
+        </ol>
     </div>
     
     <div class="instructions">
         <h3>How to use this uploader:</h3>
         <ol>
-            <li>Fill in your GitHub username and repository name</li>
-            <li>Generate a <a href="https://github.com/settings/tokens" target="_blank">Personal Access Token</a> with the "repo" scope</li>
+            <li>Configure the environment variables in Netlify (see above)</li>
+            <li>Optionally specify a subfolder path for your files</li>
             <li>Select or drag and drop files to upload</li>
             <li>Click "Upload Files" to send them to your repository</li>
+            <li>After upload, you'll get direct links to your files</li>
         </ol>
-        <p><strong>Note:</strong> This tool uses the GitHub API directly from your browser. Your token is not stored or sent to any server other than GitHub's.</p>
+        <p><strong>Note:</strong> This tool uses Netlify Functions to securely handle your GitHub credentials. They are never exposed to the client-side JavaScript.</p>
     </div>
 
     <script>
@@ -304,9 +441,29 @@
             const progressBar = document.getElementById('progress-bar');
             const progressText = document.getElementById('progress-text');
             const status = document.getElementById('status');
+            const linkContainer = document.getElementById('link-container');
+            const linkList = document.getElementById('link-list');
+            const dynamicPath = document.getElementById('dynamic-path');
+            const repoPathInput = document.getElementById('repo-path');
             
             // File storage
             let filesToUpload = [];
+            let uploadedFileLinks = [];
+            
+            // Base URL for generated links
+            const baseUrl = "https://alisfa.github.io/2276a2218i/";
+            
+            // Update dynamic path display when repo path changes
+            repoPathInput.addEventListener('input', updateDynamicPath);
+            
+            function updateDynamicPath() {
+                const path = repoPathInput.value.trim();
+                if (path) {
+                    dynamicPath.textContent = path + "/[filename]";
+                } else {
+                    dynamicPath.textContent = "[filename]";
+                }
+            }
             
             // Setup file input
             fileUploadArea.addEventListener('click', () => fileInput.click());
@@ -339,11 +496,13 @@
                 const oversizedFiles = files.filter(file => file.size > 25 * 1024 * 1024);
                 if (oversizedFiles.length > 0) {
                     alert(`The following files exceed GitHub's 25MB limit:\n${oversizedFiles.map(f => f.name).join('\n')}`);
-                    files = files.filter(file => file.size <= 25 * 1024 * 1024);
+                    // Filter out oversized files
+                    const validFiles = files.filter(file => file.size <= 25 * 1024 * 1024);
+                    filesToUpload = [...filesToUpload, ...validFiles];
+                } else {
+                    filesToUpload = [...filesToUpload, ...files];
                 }
                 
-                // Add files to our list
-                filesToUpload = [...filesToUpload, ...files];
                 renderFileList();
                 updateUploadButton();
             }
@@ -391,31 +550,14 @@
             
             // Update upload button state
             function updateUploadButton() {
-                const repoOwner = document.getElementById('repo-owner').value.trim();
-                const repoName = document.getElementById('repo-name').value.trim();
-                const token = document.getElementById('github-token').value.trim();
-                
-                uploadButton.disabled = !(filesToUpload.length > 0 && repoOwner && repoName && token);
+                uploadButton.disabled = filesToUpload.length === 0;
             }
             
-            // Add event listeners for form fields
-            ['repo-owner', 'repo-name', 'github-token'].forEach(id => {
-                document.getElementById(id).addEventListener('input', updateUploadButton);
-            });
-            
-            // Upload files to GitHub
+            // Upload files to GitHub via Netlify Function
             async function uploadFiles() {
-                const repoOwner = document.getElementById('repo-owner').value.trim();
-                const repoName = document.getElementById('repo-name').value.trim();
-                const repoPath = document.getElementById('repo-path').value.trim();
-                const token = document.getElementById('github-token').value.trim();
+                const repoPath = repoPathInput.value.trim();
                 
                 // Validate inputs
-                if (!repoOwner || !repoName || !token) {
-                    showStatus('Please fill in all required fields', 'error');
-                    return;
-                }
-                
                 if (filesToUpload.length === 0) {
                     showStatus('Please select at least one file to upload', 'error');
                     return;
@@ -425,6 +567,8 @@
                 uploadButton.disabled = true;
                 progressContainer.style.display = 'block';
                 status.className = 'status';
+                linkContainer.style.display = 'none';
+                uploadedFileLinks = [];
                 
                 let successCount = 0;
                 let errorCount = 0;
@@ -439,8 +583,19 @@
                     progressText.textContent = `Uploading ${i+1}/${filesToUpload.length}: ${file.name}`;
                     
                     try {
-                        await uploadFileToGitHub(file, repoOwner, repoName, repoPath, token);
-                        successCount++;
+                        const result = await uploadFileToGitHub(file, repoPath);
+                        if (result.success) {
+                            successCount++;
+                            // Generate and store the link
+                            const filePath = repoPath ? `${repoPath}/${file.name}` : file.name;
+                            const fileUrl = `${baseUrl}${filePath}`;
+                            uploadedFileLinks.push({
+                                name: file.name,
+                                url: fileUrl
+                            });
+                        } else {
+                            errorCount++;
+                        }
                     } catch (error) {
                         console.error(`Error uploading ${file.name}:`, error);
                         errorCount++;
@@ -454,10 +609,20 @@
                 // Show result
                 if (errorCount === 0) {
                     showStatus(`Successfully uploaded ${successCount} file(s) to your repository!`, 'success');
+                    // Show download links
+                    if (uploadedFileLinks.length > 0) {
+                        renderDownloadLinks();
+                        linkContainer.style.display = 'block';
+                    }
                 } else if (successCount === 0) {
-                    showStatus(`Failed to upload ${errorCount} file(s). Please check your credentials and try again.`, 'error');
+                    showStatus(`Failed to upload ${errorCount} file(s). Please check your configuration and try again.`, 'error');
                 } else {
                     showStatus(`Uploaded ${successCount} file(s) successfully. ${errorCount} file(s) failed.`, 'error');
+                    // Show download links for successful uploads
+                    if (uploadedFileLinks.length > 0) {
+                        renderDownloadLinks();
+                        linkContainer.style.display = 'block';
+                    }
                 }
                 
                 // Reset for next upload
@@ -468,39 +633,70 @@
                 }, 3000);
             }
             
-            // Upload a single file to GitHub
-            async function uploadFileToGitHub(file, owner, repo, path, token) {
+            // Upload a single file to GitHub via Netlify Function
+            async function uploadFileToGitHub(file, path) {
                 // Read file as base64
                 const fileContent = await readFileAsBase64(file);
                 
                 // Determine file path in repository
                 const filePath = path ? `${path}/${file.name}` : file.name;
                 
-                // GitHub API endpoint
-                const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+                // Netlify Function endpoint
+                const netlifyFunctionUrl = '/.netlify/functions/upload-to-github';
                 
                 // Request body
                 const body = {
-                    message: `Upload ${file.name}`,
-                    content: fileContent.split(',')[1] // Remove data URL prefix
+                    path: filePath,
+                    content: fileContent.split(',')[1], // Remove data URL prefix
+                    message: `Upload ${file.name} via Netlify Uploader`
                 };
                 
-                // Make API request
-                const response = await fetch(url, {
-                    method: 'PUT',
+                // Make API request to Netlify Function
+                const response = await fetch(netlifyFunctionUrl, {
+                    method: 'POST',
                     headers: {
-                        'Authorization': `token ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(body)
                 });
                 
+                const responseData = await response.json();
+                
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || `HTTP ${response.status}`);
+                    throw new Error(responseData.message || `HTTP ${response.status}`);
                 }
                 
-                return response.json();
+                return { success: true, data: responseData };
+            }
+            
+            // Render download links
+            function renderDownloadLinks() {
+                linkList.innerHTML = '';
+                
+                uploadedFileLinks.forEach(link => {
+                    const linkItem = document.createElement('div');
+                    linkItem.className = 'link-item';
+                    
+                    const linkText = document.createElement('span');
+                    linkText.className = 'link-text';
+                    linkText.textContent = link.url;
+                    
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-link';
+                    copyButton.textContent = 'Copy';
+                    copyButton.addEventListener('click', () => {
+                        navigator.clipboard.writeText(link.url).then(() => {
+                            copyButton.textContent = 'Copied!';
+                            setTimeout(() => {
+                                copyButton.textContent = 'Copy';
+                            }, 2000);
+                        });
+                    });
+                    
+                    linkItem.appendChild(linkText);
+                    linkItem.appendChild(copyButton);
+                    linkList.appendChild(linkItem);
+                });
             }
             
             // Read file as base64 data URL
@@ -518,6 +714,9 @@
                 status.textContent = message;
                 status.className = `status ${type}`;
             }
+            
+            // Initialize dynamic path display
+            updateDynamicPath();
         });
     </script>
 </body>
