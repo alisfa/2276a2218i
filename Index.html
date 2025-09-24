@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub File Uploader</title>
+    <style>
+        :root {
+            --primary-color: #0366d6;
+            --secondary-color: #f6f8fa;
+            --border-color: #e1e4e8;
+            --text-color: #24292e;
+            --success-color: #28a745;
+            --error-color: #d73a49;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background-color: #fafbfc;
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .container {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 4px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: var(--secondary-color);
+        }
+        
+        .file-upload-area:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .file-upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: rgba(3, 102, 214, 0.05);
+        }
+        
+        .file-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-name {
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .file-size {
+            color: #6a737d;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .remove-file {
+            background: none;
+            border: none;
+            color: var(--error-color);
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .progress-container {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            font-size: 12px;
+            color: #6a737d;
+            text-align: center;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #0256b9;
+        }
+        
+        button:disabled {
+            background-color: #8fa8c9;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .status.success {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+            display: block;
+        }
+        
+        .status.error {
+            background-color: rgba(215, 58, 73, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            display: block;
+        }
+        
+        .github-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .instructions {
+            background-color: var(--secondary-color);
+            padding: 15px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .instructions code {
+            background-color: rgba(27, 31, 35, 0.05);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="github-icon">🐙</div>
+        <h1>GitHub File Uploader</h1>
+        <p>Upload files directly to your GitHub repository</p>
+    </header>
+    
+    <div class="container">
+        <div class="form-group">
+            <label for="repo-owner">Repository Owner</label>
+            <input type="text" id="repo-owner" placeholder="your-github-username">
+        </div>
+        
+        <div class="form-group">
+            <label for="repo-name">Repository Name</label>
+            <input type="text" id="repo-name" placeholder="your-repository-name">
+        </div>
+        
+        <div class="form-group">
+            <label for="repo-path">Path in Repository (optional)</label>
+            <input type="text" id="repo-path" placeholder="folder/subfolder">
+        </div>
+        
+        <div class="form-group">
+            <label for="github-token">GitHub Personal Access Token</label>
+            <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        </div>
+        
+        <div class="form-group">
+            <label>Files to Upload</label>
+            <div class="file-upload-area" id="file-upload-area">
+                <p>Drag & drop files here or click to select</p>
+                <p><small>Maximum file size: 25MB (GitHub API limit)</small></p>
+            </div>
+            <div class="file-list" id="file-list"></div>
+        </div>
+        
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar"></div>
+            </div>
+            <div class="progress-text" id="progress-text">Uploading...</div>
+        </div>
+        
+        <button id="upload-button" disabled>Upload Files</button>
+        
+        <div class="status" id="status"></div>
+    </div>
+    
+    <div class="instructions">
+        <h3>How to use this uploader:</h3>
+        <ol>
+            <li>Fill in your GitHub username and repository name</li>
+            <li>Generate a <a href="https://github.com/settings/tokens" target="_blank">Personal Access Token</a> with the "repo" scope</li>
+            <li>Select or drag and drop files to upload</li>
+            <li>Click "Upload Files" to send them to your repository</li>
+        </ol>
+        <p><strong>Note:</strong> This tool uses the GitHub API directly from your browser. Your token is not stored or sent to any server other than GitHub's.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const fileUploadArea = document.getElementById('file-upload-area');
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.multiple = true;
+            const fileList = document.getElementById('file-list');
+            const uploadButton = document.getElementById('upload-button');
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const status = document.getElementById('status');
+            
+            // File storage
+            let filesToUpload = [];
+            
+            // Setup file input
+            fileUploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Drag and drop functionality
+            fileUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.add('dragover');
+            });
+            
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.classList.remove('dragover');
+            });
+            
+            fileUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.remove('dragover');
+                handleFileSelect({ target: { files: e.dataTransfer.files } });
+            });
+            
+            // Upload button click handler
+            uploadButton.addEventListener('click', uploadFiles);
+            
+            // Handle file selection
+            function handleFileSelect(e) {
+                const files = Array.from(e.target.files);
+                
+                // Check file sizes (GitHub API limit is 25MB)
+                const oversizedFiles = files.filter(file => file.size > 25 * 1024 * 1024);
+                if (oversizedFiles.length > 0) {
+                    alert(`The following files exceed GitHub's 25MB limit:\n${oversizedFiles.map(f => f.name).join('\n')}`);
+                    files = files.filter(file => file.size <= 25 * 1024 * 1024);
+                }
+                
+                // Add files to our list
+                filesToUpload = [...filesToUpload, ...files];
+                renderFileList();
+                updateUploadButton();
+            }
+            
+            // Render the file list
+            function renderFileList() {
+                fileList.innerHTML = '';
+                
+                filesToUpload.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    
+                    const fileName = document.createElement('span');
+                    fileName.className = 'file-name';
+                    fileName.textContent = file.name;
+                    
+                    const fileSize = document.createElement('span');
+                    fileSize.className = 'file-size';
+                    fileSize.textContent = formatFileSize(file.size);
+                    
+                    const removeButton = document.createElement('button');
+                    removeButton.className = 'remove-file';
+                    removeButton.innerHTML = '×';
+                    removeButton.addEventListener('click', () => {
+                        filesToUpload.splice(index, 1);
+                        renderFileList();
+                        updateUploadButton();
+                    });
+                    
+                    fileItem.appendChild(fileName);
+                    fileItem.appendChild(fileSize);
+                    fileItem.appendChild(removeButton);
+                    fileList.appendChild(fileItem);
+                });
+            }
+            
+            // Format file size for display
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Update upload button state
+            function updateUploadButton() {
+                const repoOwner = document.getElementById('repo-owner').value.trim();
+                const repoName = document.getElementById('repo-name').value.trim();
+                const token = document.getElementById('github-token').value.trim();
+                
+                uploadButton.disabled = !(filesToUpload.length > 0 && repoOwner && repoName && token);
+            }
+            
+            // Add event listeners for form fields
+            ['repo-owner', 'repo-name', 'github-token'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updateUploadButton);
+            });
+            
+            // Upload files to GitHub
+            async function uploadFiles() {
+                const repoOwner = document.getElementById('repo-owner').value.trim();
+                const repoName = document.getElementById('repo-name').value.trim();
+                const repoPath = document.getElementById('repo-path').value.trim();
+                const token = document.getElementById('github-token').value.trim();
+                
+                // Validate inputs
+                if (!repoOwner || !repoName || !token) {
+                    showStatus('Please fill in all required fields', 'error');
+                    return;
+                }
+                
+                if (filesToUpload.length === 0) {
+                    showStatus('Please select at least one file to upload', 'error');
+                    return;
+                }
+                
+                // Disable upload button and show progress
+                uploadButton.disabled = true;
+                progressContainer.style.display = 'block';
+                status.className = 'status';
+                
+                let successCount = 0;
+                let errorCount = 0;
+                
+                // Upload each file
+                for (let i = 0; i < filesToUpload.length; i++) {
+                    const file = filesToUpload[i];
+                    
+                    // Update progress
+                    const progress = ((i / filesToUpload.length) * 100).toFixed(2);
+                    progressBar.style.width = `${progress}%`;
+                    progressText.textContent = `Uploading ${i+1}/${filesToUpload.length}: ${file.name}`;
+                    
+                    try {
+                        await uploadFileToGitHub(file, repoOwner, repoName, repoPath, token);
+                        successCount++;
+                    } catch (error) {
+                        console.error(`Error uploading ${file.name}:`, error);
+                        errorCount++;
+                    }
+                }
+                
+                // Final progress update
+                progressBar.style.width = '100%';
+                progressText.textContent = 'Upload complete';
+                
+                // Show result
+                if (errorCount === 0) {
+                    showStatus(`Successfully uploaded ${successCount} file(s) to your repository!`, 'success');
+                } else if (successCount === 0) {
+                    showStatus(`Failed to upload ${errorCount} file(s). Please check your credentials and try again.`, 'error');
+                } else {
+                    showStatus(`Uploaded ${successCount} file(s) successfully. ${errorCount} file(s) failed.`, 'error');
+                }
+                
+                // Reset for next upload
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    progressBar.style.width = '0%';
+                    uploadButton.disabled = false;
+                }, 3000);
+            }
+            
+            // Upload a single file to GitHub
+            async function uploadFileToGitHub(file, owner, repo, path, token) {
+                // Read file as base64
+                const fileContent = await readFileAsBase64(file);
+                
+                // Determine file path in repository
+                const filePath = path ? `${path}/${file.name}` : file.name;
+                
+                // GitHub API endpoint
+                const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+                
+                // Request body
+                const body = {
+                    message: `Upload ${file.name}`,
+                    content: fileContent.split(',')[1] // Remove data URL prefix
+                };
+                
+                // Make API request
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP ${response.status}`);
+                }
+                
+                return response.json();
+            }
+            
+            // Read file as base64 data URL
+            function readFileAsBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+            
+            // Show status message
+            function showStatus(message, type) {
+                status.textContent = message;
+                status.className = `status ${type}`;
+            }
+        });
+    </script>
+</body>
+</html>
