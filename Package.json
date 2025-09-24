@@ -2,7 +2,7 @@
   "name": "netlify-github-uploader",
   "version": "1.0.0",
   "description": "A Netlify-hosted GitHub file uploader with environment variables",
-  "dependencies": {
-    "node-fetch": "^2.6.7"
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
