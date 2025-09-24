@@ -1,4 +1,5 @@
-const fetch = require('node-fetch');
+// Use native fetch in Netlify Functions (Node.js 18+)
+// No need for node-fetch dependency
 
 exports.handler = async function(event, context) {
     // Only allow POST requests
@@ -42,7 +43,7 @@ exports.handler = async function(event, context) {
         // GitHub API endpoint
         const url = `https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${path}`;
         
-        // Make request to GitHub API
+        // Make request to GitHub API using native fetch
         const response = await fetch(url, {
             method: 'PUT',
             headers: {
